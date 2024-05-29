@@ -1,0 +1,65 @@
+---
+- name: Setup Kubespray
+  hosts: node1
+  become: yes
+  tasks:
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Clone the Kubespray repository
+      git:
+        repo: https://github.com/kubernetes-incubator/kubespray.git
+        dest: /tmp/kubespray
+        version: master
+
+    - name: Install pip if not present
+      package:
+        name: python3-pip
+        state: present
+
+    - name: Download the latest requests package
+      get_url:
+        url: https://files.pythonhosted.org/packages/86/ec/535bf6f9bd280de6a4637526602a146a68fde757100ecf8c9333173392db/requests-2.32.2.tar.gz
+        dest: /tmp/requests-2.32.2.tar.gz
+
+    - name: Extract the requests package
+      unarchive:
+        src: /tmp/requests-2.32.2.tar.gz
+        dest: /tmp/
+        remote_src: yes
+
+    - name: Install the requests package
+      command: python3 setup.py install
+      args:
+        chdir: /tmp/requests-2.32.2
+
+    - name: Copy sample inventory
+      copy:
+        src: /tmp/kubespray/inventory/sample/
+        dest: /tmp/kubespray/inventory/mycluster/
+        remote_src: yes
+
+    - name: Declare IP addresses
+      set_fact:
+        ip_list: ["node1", "node2", "node3"]
+
+    - name: Debug check inventory directory
+      command: ls -l /tmp/kubespray/inventory/mycluster/
+      register: inventory_check_output
+
+    - name: Show inventory directory contents
+      debug:
+        var: inventory_check_output.stdout
+
+    - name: Ensure the inventory directory exists
+      ansible.builtin.file:
+        path: /tmp/kubespray/inventory/mycluster
+        state: directory
+
+    - name: Initialize the inventory file
+      shell: |
+        CONFIG_FILE=/tmp/kubespray/inventory/mycluster/hosts.yml python3 /path/to/kubespray/contrib/inventory_builder/inventory.py {{ ips | join(' ') }}
+      args:
+        chdir: /tmp/kubespray

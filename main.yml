@@ -1,0 +1,27 @@
+---
+- name: create ssh key and transfer it to all nodes
+  hosts: all
+  remote_user: ec2-user
+
+  roles:
+    - key_transfer
+
+- name: become sudo user
+  hosts: all
+  remote_user: ec2-user
+
+  roles:
+    - sudo_user
+
+- name: install python
+  hosts: node1
+  remote_user: ec2-user
+
+  roles:
+    - python
+
+- name: Kubespray Setup
+  hosts: node1
+  remote_user: ec2-user
+
+  roles: kubespray_setup

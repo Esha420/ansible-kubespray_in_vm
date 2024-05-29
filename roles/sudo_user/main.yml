@@ -1,0 +1,13 @@
+---
+- name: Grant passwordless sudo access to linux user
+  hosts: [node1 node2 node3]
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Add passwordless sudo access for ubuntu user
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ec2-user ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+        state: present
