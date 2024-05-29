@@ -24,4 +24,5 @@
   hosts: node1
   remote_user: ec2-user
 
-  roles: kubespray_setup
+  roles:
+    - kubespray_setup
