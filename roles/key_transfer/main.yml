@@ -3,6 +3,8 @@
   hosts: kube-spray
   remote_user: kube-spray  # Update this to the appropriate user for your setup
   become: yes
+  vars:
+    ansible_password: 12345
   tasks:
     - name: Generate SSH key
       ansible.builtin.command: ssh-keygen -t rsa -b 2048 -f /home/kube-spray/.ssh/id_rsa -N ""

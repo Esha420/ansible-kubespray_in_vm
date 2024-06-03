@@ -1,6 +1,6 @@
 ---
 - name: Install Python and Pip on Red Hat Linux
-  hosts: [node1]
+  hosts: kube-spray
   become: yes
   tasks:
     - name: Install Python
