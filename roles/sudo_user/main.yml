@@ -1,13 +1,27 @@
 ---
-- name: Grant passwordless sudo access to linux user
-  hosts: [node1 node2 node3]
+- name: Grant passwordless sudo access to linux users
+  hosts: kube-spray,worker1,worker2
   become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
   tasks:
-    - name: Add passwordless sudo access for ubuntu user
+    - name: Add passwordless sudo access for kube-spray user
       lineinfile:
         dest: /etc/sudoers
-        line: 'ec2-user ALL=(ALL) NOPASSWD: ALL'
+        line: 'kube-spray ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+        state: present
+
+    - name: Add passwordless sudo access for worker1 user
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'worker1 ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+        state: present
+
+    - name: Add passwordless sudo access for worker2 user
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'worker2 ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
         state: present

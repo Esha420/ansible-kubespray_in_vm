@@ -1,6 +1,6 @@
 ---
 - name: Setup Kubespray
-  hosts: node1
+  hosts: kube-spray
   become: yes
   tasks:
     - name: Install git
@@ -43,7 +43,7 @@
 
     - name: Declare IP addresses
       set_fact:
-        ip_list: ["node1", "node2", "node3"]
+        ip_list: ["kube-spray", "worker1", "worker2"]
 
     - name: Debug check inventory directory
       command: ls -l /tmp/kubespray/inventory/mycluster/
