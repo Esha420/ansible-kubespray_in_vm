@@ -1,6 +1,6 @@
 ---
 - name: create ssh key and transfer it to all nodes
-  hosts: all
+  hosts: kube-spray
   remote_user: kube-spray  # Update this to the appropriate user for your setup
   become: yes
   tasks:
