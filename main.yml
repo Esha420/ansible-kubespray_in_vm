@@ -1,28 +1,16 @@
 ---
 - name: create ssh key and transfer it to all nodes
-  hosts: kube-spray,worker1,worker2
-  remote_user: kube-spray
-
   roles:
     - key_transfer
 
 - name: become sudo user
-  hosts: kube-spray,worker1,worker2
-  remote_user: kube-spray
-
   roles:
     - sudo_user
 
 - name: install python
-  hosts: kube-spray
-  remote_user: kube-spray
-
   roles:
     - python
 
 - name: Kubespray Setup
-  hosts: kube-spray
-  remote_user: kube-spray
-
   roles:
     - kubespray_setup
