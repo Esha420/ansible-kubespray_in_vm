@@ -7,12 +7,6 @@
   roles:
     - key_transfer
 
-- name: Read the generated public key
-  hosts: kube-spray
-  ansible.builtin.slurp:
-    src: /home/kube-spray/.ssh/id_rsa.pub
-  register: public_key
-
 - name: create ssh key and transfer it to node2
   hosts: kube-spray,worker2
   become: true
