@@ -13,30 +13,24 @@
         owner: worker2
         group: worker2
 
-    - name: Debug known_hosts file
-      ansible.builtin.shell: cat ~/.ssh/known_hosts
-      register: known_hosts_debug
-      when: inventory_hostname == 'worker2'
-
-    - debug:
-        var: known_hosts_debug.stdout_lines
-
     - name: Accept host key for node2
       ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
       when: inventory_hostname == 'worker2'
 
-    - name: Debug authorized_keys file
-      ansible.builtin.shell: cat /home/worker2/.ssh/authorized_keys
-      register: authorized_keys_debug
-
-    - debug:
-        var: authorized_keys_debug.stdout_lines
-
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
         path: "/home/worker2/.ssh/authorized_keys"
-        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"
+        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"  # Update this path
         create: yes
         owner: worker2
         group: worker2
         mode: '0600'
+
+    - name: Debug authorized_keys file
+      ansible.builtin.shell: cat /home/worker2/.ssh/authorized_keys
+      register: authorized_keys_debug
+      when: inventory_hostname == 'worker2'
+
+  rescue:
+    - debug:
+        msg: "Failed to transfer SSH keys to worker2."
