@@ -15,8 +15,8 @@
   roles:
     - key_transfer1
 
-- name: create ssh key and transfer it to node2
-  hosts: worker1
+- name: create ssh key and transfer it to node3
+  hosts: kube-spray,worker1
   become: true
   vars:
     ansible_password: 12345
