@@ -1,8 +1,5 @@
 ---
-- name: Setup Kubespray
-  hosts: kube-spray
-  become: yes
-  tasks:
+- block:
     - name: Install git
       package:
         name: git
@@ -19,21 +16,14 @@
         name: python3-pip
         state: present
 
-    - name: Download the latest requests package
-      get_url:
-        url: https://files.pythonhosted.org/packages/86/ec/535bf6f9bd280de6a4637526602a146a68fde757100ecf8c9333173392db/requests-2.32.2.tar.gz
-        dest: /tmp/requests-2.32.2.tar.gz
-
-    - name: Extract the requests package
-      unarchive:
-        src: /tmp/requests-2.32.2.tar.gz
-        dest: /tmp/
-        remote_src: yes
-
-    - name: Install the requests package
-      command: python3 setup.py install
-      args:
-        chdir: /tmp/requests-2.32.2
+    - name: Install the required Python packages
+      pip:
+        name:
+          - requests
+          - jinja2
+          - pyyaml
+          - netaddr
+        state: present
 
     - name: Copy sample inventory
       copy:
@@ -45,30 +35,22 @@
       set_fact:
         ip_list: ["kube-spray", "worker1", "worker2"]
 
-    - name: Debug check inventory directory
-      command: ls -l /tmp/kubespray/inventory/mycluster/
-      register: inventory_check_output
-
-    - name: Show inventory directory contents
-      debug:
-        var: inventory_check_output.stdout
-
     - name: Ensure the inventory directory exists
-      ansible.builtin.file:
+      file:
         path: /tmp/kubespray/inventory/mycluster
         state: directory
 
     - name: Initialize the inventory file
       shell: |
-        CONFIG_FILE=/tmp/kubespray/inventory/mycluster/hosts.yml python3 /path/to/kubespray/contrib/inventory_builder/inventory.py {{ ips | join(' ') }}
+        CONFIG_FILE=/tmp/kubespray/inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py {{ ip_list | join(' ') }}
       args:
         chdir: /tmp/kubespray
+
     - name: Execute kubespray playbook for cluster setup
-      command: >
-        ansible-playbook -i /tmp/kubespray/inventory/mycluster/hosts.yml
-        --become
-        --become-user=root
-        cluster.yml
+      command: ansible-playbook -i /tmp/kubespray/inventory/mycluster/hosts.yml --become --become-user=root cluster.yml
+      args:
+        chdir: /tmp/kubespray
+
     - name: Create .kube directory
       file:
         path: "{{ ansible_env.HOME }}/.kube"
@@ -85,7 +67,9 @@
         remote_src: yes
 
     - name: Change ownership of kube config
-      command: >
-        chown {{ ansible_uid }}:{{ ansible_gid }} {{ ansible_env.HOME }}/.kube/config
-      become: yes
-      become_user: "{{ ansible_user }}"
+      file:
+        path: "{{ ansible_env.HOME }}/.kube/config"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+      become: true

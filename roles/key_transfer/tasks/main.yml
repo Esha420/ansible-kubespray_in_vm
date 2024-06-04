@@ -1,16 +1,52 @@
 ---
-- name: create ssh key and transfer it to all nodes
-  hosts: kube-spray
-  remote_user: kube-spray
-  become: yes
-  vars:
-    ansible_password: 12345
-  tasks:
+- block:
     - name: Generate SSH key
       ansible.builtin.command: ssh-keygen -t rsa -b 2048 -f /home/kube-spray/.ssh/id_rsa -N ""
       args:
         creates: /home/kube-spray/.ssh/id_rsa
-      ignore_errors: yes
+      ignore_errors: true
+
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh
+        state: directory
+        mode: '0700'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Ensure correct permissions on the SSH key
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh/id_rsa
+        mode: '0600'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Ensure correct permissions on the SSH public key
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh/id_rsa.pub
+        mode: '0644'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Read the generated public key
+      ansible.builtin.slurp:
+        src: /home/kube-spray/.ssh/id_rsa.pub
+      register: public_key
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: /home/kube-spray/.ssh/authorized_keys
+        line: "{{ public_key['content'] | b64decode }}"
+        create: yes
+        mode: '0600'
+        owner: kube-spray
+        group: kube-s  - 
+    - name: Generate SSH key
+      ansible.builtin.command: ssh-keygen -t rsa -b 2048 -f /home/kube-spray/.ssh/id_rsa -N ""
+      args:
+        creates: /home/kube-spray/.ssh/id_rsa
+      ignore_errors: true
 
 
     - name: Ensure .ssh directory exists
@@ -48,59 +84,3 @@
         mode: '0600'
         owner: kube-spray
         group: kube-spray
-
-- name: Add SSH public key to authorized_keys on worker1
-  hosts: worker1
-  remote_user: worker1
-  become: yes
-  vars:
-    ansible_password: 12345
-  tasks:
-    - name: Ensure .ssh directory exists
-      ansible.builtin.file:
-        path: /home/worker1/.ssh
-        state: directory
-        mode: '0700'
-        owner: worker1
-        group: worker1
-
-    - name: Accept host key for node1
-      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
-      when: inventory_hostname == 'worker1'
-
-    - name: Add SSH public key to authorized_keys
-      ansible.builtin.lineinfile:
-        path: "/home/worker1/.ssh/authorized_keys"
-        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"
-        create: yes
-        owner: worker1
-        group: worker1
-        mode: '0600'
-
-- name: Add SSH public key to authorized_keys on worker2
-  hosts: worker2
-  remote_user: worker2
-  become: yes
-  vars:
-    ansible_password: 12345
-  tasks:
-    - name: Ensure .ssh directory exists
-      ansible.builtin.file:
-        path: /home/worker2/.ssh
-        state: directory
-        mode: '0700'
-        owner: worker2
-        group: worker2
-
-    - name: Accept host key for node2
-      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
-      when: inventory_hostname == 'worker2'
-
-    - name: Add SSH public key to authorized_keys
-      ansible.builtin.lineinfile:
-        path: "/home/worker2/.ssh/authorized_keys"
-        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"
-        create: yes
-        owner: worker2
-        group: worker2
-        mode: '0600'

@@ -1,0 +1,22 @@
+---
+- block:
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/worker2/.ssh
+        state: directory
+        mode: '0700'
+        owner: worker2
+        group: worker2
+
+    - name: Accept host key for node2
+      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
+      when: inventory_hostname == 'worker2'
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: "/home/worker2/.ssh/authorized_keys"
+        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"
+        create: yes
+        owner: worker2
+        group: worker2
+        mode: '0600'

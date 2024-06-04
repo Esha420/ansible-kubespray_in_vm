@@ -1,11 +1,5 @@
 ---
-- name: Grant passwordless sudo access to kube-spray user
-  hosts: kube-spray,worker1,worker2
-  become: yes
-  vars:
-    ansible_password: 12345
-    ansible_python_interpreter: /usr/bin/python3
-  tasks:
+- block:
     - name: Add passwordless sudo access for kube-spray user
       lineinfile:
         dest: /etc/sudoers

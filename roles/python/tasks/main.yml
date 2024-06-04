@@ -1,13 +1,9 @@
 ---
-- name: Install Python and Pip on Red Hat Linux
-  hosts: kube-spray
-  become: yes
-  tasks:
+- block:
     - name: Install Python
       package:
         name: python3
         state: present
-
     - name: Install Pip
       package:
         name: python3-pip
