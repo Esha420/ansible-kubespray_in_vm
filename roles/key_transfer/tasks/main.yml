@@ -32,11 +32,11 @@
       ansible.builtin.slurp:
         src: /home/kube-spray/.ssh/id_rsa.pub
       register: public_key
-      
+
     - name: Set fact for public key
       ansible.builtin.set_fact:
         kube_spray_public_key: "{{ public_key['content'] | b64decode }}"
-      delegate_to: localhost
+      delegate_to: worker1
       run_once: true
 
     - name: Add SSH public key to authorized_keys
