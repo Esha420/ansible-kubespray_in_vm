@@ -22,12 +22,12 @@
 
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
-        path: "/home/worker2/.ssh/authorized_keys"
-        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"  # Update this path
+        path: /home/worker1/.ssh/authorized_keys
+        line: "{{ hostvars['localhost'].kube_spray_public_key }}"
         create: yes
-        owner: worker2
-        group: worker2
         mode: '0600'
+        owner: worker1
+        group: worker1
 
     - name: Debug authorized_keys file
       ansible.builtin.shell: cat /home/worker2/.ssh/authorized_keys

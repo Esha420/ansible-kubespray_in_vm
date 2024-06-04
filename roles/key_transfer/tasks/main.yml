@@ -28,8 +28,16 @@
         owner: kube-spray
         group: kube-spray
 
-    - name: Include task to read public key
-      include_tasks: read_public_key.yml
+    - name: Read the generated public key
+      ansible.builtin.slurp:
+        src: /home/kube-spray/.ssh/id_rsa.pub
+      register: public_key
+      
+    - name: Set fact for public key
+      ansible.builtin.set_fact:
+        kube_spray_public_key: "{{ public_key['content'] | b64decode }}"
+      delegate_to: localhost
+      run_once: true
 
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
