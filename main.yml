@@ -8,7 +8,7 @@
     - key_transfer
 
 - name: create ssh key and transfer it to node2
-  hosts: worker2
+  hosts: kube-spray,worker2
   become: true
   vars:
     ansible_password: 12345
