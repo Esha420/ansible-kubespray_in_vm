@@ -12,6 +12,9 @@
       ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
       when: inventory_hostname == 'worker1'
 
+    - name: Include task to read public key
+      include_tasks: read_public_key.yml
+
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
         path: "/home/worker1/.ssh/authorized_keys"
