@@ -40,5 +40,4 @@
         create: yes
         mode: '0600'
         owner: kube-spray
-        group: kube-s  - 
-    
+        group: kube-spray
