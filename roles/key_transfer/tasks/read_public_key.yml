@@ -3,3 +3,4 @@
   ansible.builtin.slurp:
     src: /home/kube-spray/.ssh/id_rsa.pub
   register: public_key
+
