@@ -1,20 +1,45 @@
 ---
-- name: create ssh key and transfer it to all nodes
-  hosts: kube-spray,worker1,worker2
+- name: create ssh key and transfer it to node1
+  hosts: kube-spray
+  become: true
+  vars:
+    ansible_password: 12345
   roles:
     - key_transfer
 
+- name: create ssh key and transfer it to node2
+  hosts: worker1
+  become: true
+  vars:
+    ansible_password: 12345
+  roles:
+    - key_transfer1
+
+- name: create ssh key and transfer it to node2
+  hosts: worker2
+  become: true
+  vars:
+    ansible_password: 12345
+  roles:
+    - key_transfer2
+
 - name: become sudo user
   hosts: kube-spray,worker1,worker2
+  become: true
+  vars:
+    ansible_password: 12345
+    ansible_python_interpreter: /usr/bin/python3
   roles:
     - sudo_user
 
 - name: install python
   hosts: kube-spray,worker1,worker2
+  become: true
   roles:
     - python
 
 - name: Kubespray Setup
   hosts: kube-spray,worker1,worker2
+  become: true
   roles:
     - kubespray_setup
