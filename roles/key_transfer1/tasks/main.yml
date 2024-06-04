@@ -4,6 +4,7 @@
       ansible.builtin.user:
         name: worker2
         state: present
+
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
         path: /home/worker2/.ssh
@@ -12,9 +13,24 @@
         owner: worker2
         group: worker2
 
+    - name: Debug known_hosts file
+      ansible.builtin.shell: cat ~/.ssh/known_hosts
+      register: known_hosts_debug
+      when: inventory_hostname == 'worker2'
+
+    - debug:
+        var: known_hosts_debug.stdout_lines
+
     - name: Accept host key for node2
       ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
       when: inventory_hostname == 'worker2'
+
+    - name: Debug authorized_keys file
+      ansible.builtin.shell: cat /home/worker2/.ssh/authorized_keys
+      register: authorized_keys_debug
+
+    - debug:
+        var: authorized_keys_debug.stdout_lines
 
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
