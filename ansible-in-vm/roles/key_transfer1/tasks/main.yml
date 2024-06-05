@@ -15,7 +15,7 @@
 
     - name: Accept host key for node2
       ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
-      when: inventory_hostname == 'worker2'
+      when: inventory_hostname == worker2
 
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
