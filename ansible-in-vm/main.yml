@@ -11,12 +11,19 @@
 
 
 - name: Key transfer to worker1 and worker2
-  hosts: worker1,worker2
+  hosts: worker1
   become: true
   vars:
     ansible_password: 12345
   roles:
     - key_transfer1.2
+
+- name: Key transfer to worker1 and worker2
+  hosts: worker2
+  become: true
+  vars:
+    ansible_password: 12345
+  roles:
     - key_transfer1.3
 
 - name: become sudo user
