@@ -9,7 +9,7 @@
 
     - name: Accept host key for node1
       ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
-      when: inventory_hostname == kube-spray  # Assuming 'node1' is represented by this IP address
+      when: inventory_hostname == 127.25.204.49  # Assuming 'node1' is represented by this IP address
 
     - name: Fetch id_rsa.pub from kube-spray node
       ansible.builtin.fetch:
