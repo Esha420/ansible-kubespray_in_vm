@@ -1,0 +1,28 @@
+- block:
+    - name: Ensure correct permissions on the SSH key
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh/id_rsa
+        mode: '0600'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Ensure correct permissions on the SSH public key
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh/id_rsa.pub
+        mode: '0644'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Read the generated public key
+      ansible.builtin.slurp:
+        src: /home/kube-spray/.ssh/id_rsa.pub
+      register: public_key
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: /home/kube-spray/.ssh/authorized_keys
+        line: "{{ public_key['content'] | b64decode }}"
+        create: yes
+        mode: '0600'
+        owner: kube-spray
+        group: kube-spray

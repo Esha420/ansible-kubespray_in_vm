@@ -1,0 +1,29 @@
+- block:
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/worker2/.ssh
+        state: directory
+        mode: '0700'
+        owner: worker2
+        group: worker2
+
+    - name: Accept host key for node1
+      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
+      when: inventory_hostname == 'kube-spray'  # Assuming 'node1' is represented by this IP address
+
+    - name: Fetch id_rsa.pub from kube-spray node
+      ansible.builtin.fetch:
+        src: /home/kube-spray/.ssh/id_rsa.pub
+        dest: /tmp/id_rsa.pub
+        flat: yes
+        validate_checksum: no
+      delegate_to: kube-spray
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: "/home/worker2/.ssh/authorized_keys"
+        line: "{{ lookup('file', '/tmp/id_rsa.pub') }}"
+        create: yes
+        owner: worker2
+        group: worker2
+        mode: '0600'

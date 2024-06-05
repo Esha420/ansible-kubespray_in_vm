@@ -1,0 +1,6 @@
+# read_public_key.yml
+- name: Read the generated public key
+  ansible.builtin.slurp:
+    src: /home/kube-spray/.ssh/id_rsa.pub
+  register: public_key
+

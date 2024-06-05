@@ -1,0 +1,13 @@
+- block:
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/kube-spray/.ssh
+        state: directory
+        mode: '0700'
+        owner: kube-spray
+        group: kube-spray
+
+    - name: Generate SSH key
+      ansible.builtin.command: ssh-keygen -t rsa -b 2048 -f /home/kube-spray/.ssh/id_rsa -N ""
+      args:
+        creates: /home/kube-spray/.ssh/id_rsa

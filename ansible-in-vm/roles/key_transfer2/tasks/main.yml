@@ -1,0 +1,26 @@
+---
+- block:
+    - name: Ensure .ssh directory exists in "worker1"
+      ansible.builtin.file:
+        path: /home/worker1/.ssh
+        state: directory
+        mode: '0700'
+        owner: worker1
+        group: worker1
+
+    - name: Accept host key for node1
+      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
+      when: inventory_hostname == 'worker1'
+
+    - name: Include task to read public key
+      include_tasks: read_public_key.yml
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: "/home/worker1/.ssh/authorized_keys"
+        line: "{{ lookup('file', '/home/kube-spray/.ssh/id_rsa.pub') }}"
+        create: yes
+        owner: worker1
+        group: worker1
+        mode: '0600'
+

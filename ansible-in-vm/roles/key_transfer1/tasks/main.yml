@@ -1,0 +1,36 @@
+---
+- block:
+    - name: Ensure worker2 user exists
+      ansible.builtin.user:
+        name: worker2
+        state: present
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: /home/worker2/.ssh
+        state: directory
+        mode: '0700'
+        owner: worker2
+        group: worker2
+
+    - name: Accept host key for node2
+      ansible.builtin.shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
+      when: inventory_hostname == 'worker2'
+
+    - name: Add SSH public key to authorized_keys
+      ansible.builtin.lineinfile:
+        path: /home/worker2/.ssh/authorized_keys
+        line: "{{ hostvars['localhost'].kube_spray_public_key }}"
+        create: yes
+        mode: '0600'
+        owner: worker2
+        group: worker2
+
+    - name: Debug authorized_keys file
+      ansible.builtin.shell: cat /home/worker2/.ssh/authorized_keys
+      register: authorized_keys_debug
+      when: inventory_hostname == 'worker2'
+
+  rescue:
+    - debug:
+        msg: "Failed to transfer SSH keys to worker2."
