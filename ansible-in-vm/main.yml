@@ -1,5 +1,5 @@
 ---
-- name: create ssh key in node kube-spray
+- name: create ssh key in node kube-spray and add it to authorized key of kube-spray
   hosts: kube-spray
   become: true
   remote_user: kube-spray
@@ -10,7 +10,7 @@
     - key_transfer1.1
 
 
-- name: Key transfer to worker1 and worker2
+- name: Key transfer to worker1 
   hosts: worker1
   become: true
   vars:
@@ -18,7 +18,7 @@
   roles:
     - key_transfer1.2
 
-- name: Key transfer to worker1 and worker2
+- name: Key transfer to and worker2
   hosts: worker2
   become: true
   vars:

@@ -17,7 +17,7 @@
         dest: /tmp/id_rsa.pub
         flat: yes
         validate_checksum: no
-      delegate_to: kube-spray
+      delegate_to: 127.25.204.49
 
     - name: Add SSH public key to authorized_keys
       ansible.builtin.lineinfile:
